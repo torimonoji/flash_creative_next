@@ -1,25 +1,36 @@
-export function Contact() {
+export function Contact({
+  eyebrow = "Let’s talk",
+  lines = ["Let’s make", "a little", "noise."],
+  variant = "home",
+}: {
+  eyebrow?: string;
+  lines?: [string, string, string];
+  variant?: "home" | "works" | "case";
+} = {}) {
   return (
-    <section id="contact" className="contact section">
+    <section
+      id="contact"
+      className={`contact section${variant === "home" ? "" : ` ${variant}-contact`}`}
+      data-portfolio-reveal={variant === "home" ? undefined : ""}
+    >
       <div className="contact-top reveal">
-        <span className="eyebrow">Let’s talk</span>
+        <span className="eyebrow">{eyebrow}</span>
       </div>
       <div className="contact-composition reveal">
         <a
           href="#contact-links"
           className="contact-title"
           id="enquiry-open"
-          aria-label="Let’s make a little noise — start a conversation"
+          aria-label={`${lines.join(" ")} — start a project`}
         >
-          <span className="contact-line">
-            <span>Let’s make</span>
-          </span>
-          <span className="contact-line">
-            <span>a little</span>
-          </span>
-          <span className="contact-line contact-blue">
-            <span>noise.</span>
-          </span>
+          {lines.map((line, index) => (
+            <span
+              key={line}
+              className={`contact-line${index === lines.length - 1 ? " contact-blue" : ""}`}
+            >
+              <span>{line}</span>
+            </span>
+          ))}
         </a>
         <div className="contact-action">
           <div className="contact-orbit">

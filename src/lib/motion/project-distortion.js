@@ -41,7 +41,12 @@ void main(){
   const allowed = () => scope.active && pointer.matches && !motion.matches;
   document.querySelectorAll(".project-image").forEach((box) => {
     const image = box.querySelector("img"),
-      button = box.closest("button");
+      button = box.closest("button,a"),
+      heroLanding = button.classList.contains("project-one");
+    const canHover = () =>
+      allowed() &&
+      (!heroLanding ||
+        !document.body.matches(".journey-travelling, .journey-pending"));
     let canvas,
       gl,
       program,
@@ -51,13 +56,14 @@ void main(){
       raf = 0,
       hovering = false,
       failed = false,
-      pending = false,
+      preparation,
       strength = 0,
       px = 0.5,
       py = 0.5,
       tx = 0.5,
       ty = 0.5,
-      start = 0;
+      start = 0,
+      previousTime = 0;
     const compile = (type, source) => {
       const shader = gl.createShader(type);
       gl.shaderSource(shader, source);
@@ -72,8 +78,11 @@ void main(){
       if (!gl || !program) return;
       const r = box.getBoundingClientRect(),
         dpr = Math.min(devicePixelRatio || 1, 1.5);
-      canvas.width = Math.max(1, Math.round(r.width * dpr));
-      canvas.height = Math.max(1, Math.round(r.height * dpr));
+      const width = Math.max(1, Math.round(r.width * dpr)),
+        height = Math.max(1, Math.round(r.height * dpr));
+      // Setting either dimension clears the canvas, even when it is unchanged.
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
       gl.viewport(0, 0, canvas.width, canvas.height);
       const aspect = r.width / r.height,
         source = image.naturalWidth / image.naturalHeight;
@@ -84,6 +93,7 @@ void main(){
         aspect < source ? aspect / source : 1,
         aspect < source ? 1 : source / aspect,
       );
+      paint(performance.now());
     }
     function init() {
       if (gl) return true;
@@ -146,7 +156,9 @@ void main(){
         };
         gl.uniform1i(gl.getUniformLocation(program, "u_image"), 0);
         box.appendChild(canvas);
+        start = performance.now();
         resize();
+        gl.flush();
         new scope.ResizeObserver(resize).observe(box);
         scope.on(canvas, "webglcontextlost", (e) => {
           e.preventDefault();
@@ -162,22 +174,31 @@ void main(){
         return false;
       }
     }
-    function draw(now) {
-      if (!gl || !allowed()) {
-        stop();
-        return;
-      }
-      strength += ((hovering ? 1 : 0) - strength) * 0.085;
-      px += (tx - px) * 0.12;
-      py += (ty - py) * 0.12;
+    function paint(now) {
       gl.useProgram(program);
       gl.uniform2f(locations.pointer, px, py);
       gl.uniform1f(locations.strength, strength);
       gl.uniform1f(locations.time, (now - start) * 0.001);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+    function draw(now) {
+      if (!gl || !canHover()) {
+        stop();
+        return;
+      }
+      const elapsed = Math.min(64, Math.max(0, now - previousTime)),
+        fade = 1 - Math.exp(-elapsed / 185),
+        follow = 1 - Math.exp(-elapsed / 130);
+      previousTime = now;
+      strength += ((hovering ? 1 : 0) - strength) * fade;
+      px += (tx - px) * follow;
+      py += (ty - py) * follow;
+      paint(now);
       if (hovering || strength > 0.003) raf = requestAnimationFrame(draw);
       else {
         raf = 0;
+        strength = 0;
+        paint(now);
         box.classList.remove("gl-active");
       }
     }
@@ -186,31 +207,38 @@ void main(){
       tx = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
       ty = 1 - Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
     }
+    function prepare() {
+      if (!preparation)
+        preparation = image.decode().then(
+          () => {
+            if (allowed()) return init();
+            preparation = undefined;
+            return false;
+          },
+          () => {
+            preparation = undefined;
+            return false;
+          },
+        );
+      return preparation;
+    }
     async function enter(e) {
-      if (
-        !allowed() ||
-        e.pointerType === "touch" ||
-        failed ||
-        (button.classList.contains("project-one") &&
-          document.body.classList.contains("journey-travelling"))
-      )
-        return;
+      if (!canHover() || e.pointerType === "touch" || failed) return;
       hovering = true;
       position(e);
-      if (pending) return;
-      pending = true;
-      try {
-        await image.decode();
-      } catch {
-        pending = false;
+      if (!gl && !(await prepare())) {
+        hovering = false;
         return;
       }
-      pending = false;
-      if (!hovering || !allowed() || !init()) return;
+      if (!hovering || !canHover()) {
+        hovering = false;
+        return;
+      }
       if (!raf) {
         px = tx;
         py = ty;
         start = performance.now();
+        previousTime = start;
         draw(start);
       }
       box.classList.add("gl-active");
@@ -233,7 +261,10 @@ void main(){
       canvas?.remove();
     });
     scope.on(box, "pointerenter", enter);
-    scope.on(box, "pointermove", position);
+    scope.on(box, "pointermove", (e) => {
+      position(e);
+      if (!hovering) enter(e);
+    });
     scope.on(box, "pointerleave", () => {
       hovering = false;
     });
@@ -244,6 +275,25 @@ void main(){
       if (document.hidden) stop();
     });
     scope.on(window, "blur", stop);
+    // Prepare the hero's landing image off the hover path, without revealing it.
+    if (heroLanding && allowed()) {
+      let idle = 0;
+      const warm = () => prepare();
+      const observer = new scope.IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          observer.disconnect();
+          if (window.requestIdleCallback)
+            idle = window.requestIdleCallback(warm, { timeout: 1000 });
+          else setTimeout(warm, 200);
+        },
+        { rootMargin: "240px" },
+      );
+      observer.observe(box);
+      scope.cleanup(() => {
+        if (idle) window.cancelIdleCallback(idle);
+      });
+    }
   });
   return () => scope.dispose();
 }

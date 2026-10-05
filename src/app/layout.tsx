@@ -33,9 +33,9 @@ export const viewport: Viewport = { themeColor: "#eeeeec" };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <a className="skip" href="/#work">
-          Skip to work
+      <body id="top">
+        <a className="skip" href="#main">
+          Skip to content
         </a>
         <div className="progress" aria-hidden="true" />
         <Header />

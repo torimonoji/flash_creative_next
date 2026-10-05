@@ -6,14 +6,14 @@ export const site = {
     "Flash Creative is an independent creative studio shaping distinctive brands and digital experiences.",
   copyrightYear: 2026,
   navigation: [
-    { label: "Work", href: "/#work" },
+    { label: "Works", href: "/works/" },
     { label: "About", href: "/#studio" },
     { label: "What we do", href: "/#services" },
     { label: "Contact", href: "/#contact" },
   ],
   footerNavigation: [
     { label: "Home", href: "/#home" },
-    { label: "Work", href: "/#work" },
+    { label: "Works", href: "/works/" },
     { label: "About", href: "/#studio" },
     { label: "Contact", href: "/#contact" },
   ],

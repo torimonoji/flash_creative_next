@@ -11,7 +11,7 @@ import { HomeInteractions } from "@/components/motion/HomeInteractions";
 export default function HomePage() {
   return (
     <>
-      <main>
+      <main id="main">
         <Hero />
         <SelectedWork />
         <TypographyInterlude />

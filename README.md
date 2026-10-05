@@ -4,7 +4,7 @@ Trang chủ portfolio đã chuyển sang **Next.js App Router + React + TypeScri
 
 ## Chạy trên máy
 
-Dùng Node.js 24 LTS (xem `.nvmrc`; yêu cầu tối thiểu của dự án là Node 22).
+Dùng Node.js 24 LTS (xem `.nvmrc`; `package.json` ghim nhánh `24.x`).
 
 ```bash
 npm ci
@@ -25,6 +25,9 @@ npm run preview
 | Đường dẫn                                       | Nội dung                                                        |
 | ----------------------------------------------- | --------------------------------------------------------------- |
 | `src/app/layout.tsx`                            | Layout chung, header/footer/dialog, metadata                    |
+| `src/app/works/`                                | Danh mục Works và route case study theo slug                    |
+| `src/components/work/`                          | Card dự án dùng chung và layout case study                      |
+| `src/content/case-studies.ts`                   | Nội dung case study đã hoàn thiện; thêm slug để xuất trang mới  |
 | `src/app/page.tsx`                              | Thứ tự các section của trang chủ                                |
 | `src/components/layout/`                        | Header, footer, nút liên hệ cố định                             |
 | `src/components/home/`                          | Hero, Selected Work, ba tiêu đề, Studio, Services, Contact, FAQ |
@@ -49,10 +52,12 @@ npm run preview
 - Root Directory: thư mục chứa `package.json` của bản mới.
 - Install Command: `npm ci`.
 - Build Command: `npm run build`.
-- Output Directory: `out`.
+- Output Directory: **`.next`**, được cố định trong `vercel.json`; không nhập `out`.
 - Node.js: **24.x**.
 
-`vercel.json` đã khai báo các thiết lập build trên. Cần bỏ những override cũ trỏ về `public` hoặc `dist` trong dashboard Vercel.
+`vercel.json` khai báo framework/install/build và `outputDirectory: ".next"`. Cấu hình file này được ưu tiên hơn Output Directory trong dashboard Vercel. Nếu dashboard còn bật Override, đổi giá trị về `.next` rồi Save để hai nơi thống nhất. Commit thay đổi và deploy commit mới; redeploy commit cũ sẽ vẫn dùng cấu hình cũ.
+
+Next.js vẫn tạo `out/` cho preview tĩnh và các host static. Adapter Next.js của Vercel tự đọc manifest trong `.next/` và xử lý static export; không đặt Output Directory của Vercel thành `out`.
 
 ## Domain và mở rộng
 
@@ -60,4 +65,4 @@ Có thể đặt `NEXT_PUBLIC_SITE_URL=https://ten-mien-cua-ban` trong Vercel ho
 
 Hiện chưa có CMS, form, đăng nhập, thanh toán hoặc API backend. Contact tiếp tục dùng Messenger/Zalo. Dự án trong danh sách vẫn là concept mẫu; social hiện trỏ đến trang nền tảng và cần thay bằng profile thật.
 
-Thêm trang chi tiết dự án có thể dùng `src/app/work/[slug]/page.tsx`, dữ liệu từ `projects.ts` và `generateStaticParams()`. Xem [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) để biết giới hạn chế độ tĩnh và cách mở rộng sang dịch vụ có server.
+Trang `/works/` chứa tất cả dự án; trang chủ giữ bốn dự án tiêu biểu. Sáu case study FORME, MONO, AER, PULSE, STILL và OFFSET tại `/works/<slug>/` dùng `src/app/works/[slug]/page.tsx`, dữ liệu trong `src/content/case-studies.ts` và `generateStaticParams()`. Cả sáu card hiện liên kết tới trang chi tiết. Nội dung là concept mẫu; dự án mới chưa có case study vẫn mở cửa sổ xem nhanh. Xem [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) để biết giới hạn chế độ tĩnh và cách mở rộng sang dịch vụ có server.

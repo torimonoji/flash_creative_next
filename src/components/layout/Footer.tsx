@@ -62,7 +62,7 @@ export function Footer() {
         <span>
           © {site.copyrightYear} {site.name}
         </span>
-        <a href="/#home">Back to top</a>
+        <a href="#top">Back to top</a>
       </div>
       <div className="footer-marquee">
         <a href="/#home" aria-label="Flash Creative — back to home">
