@@ -1,4 +1,5 @@
 import { Contact } from "@/components/home/Contact";
+import { ExploreWorksLink } from "@/components/work/ExploreWorksLink";
 import type { Project } from "@/content/projects";
 import type { CaseStudy } from "@/content/case-studies";
 
@@ -173,23 +174,7 @@ export function CaseStudyPage({
         aria-label="Project navigation"
         data-portfolio-reveal
       >
-        <a
-          className="all-works-button"
-          href="/works/"
-          aria-label="Explore all works"
-        >
-          <span className="all-works-label" aria-hidden="true">
-            <span className="all-works-reel">
-              <span>Explore all works</span>
-              <span>Explore all works</span>
-              <span>Explore all works</span>
-              <span>Explore all works</span>
-            </span>
-          </span>
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M4 12h15M13 6l6 6-6 6" />
-          </svg>
-        </a>
+        <ExploreWorksLink />
       </nav>
       <Contact
         eyebrow="Have something in mind?"

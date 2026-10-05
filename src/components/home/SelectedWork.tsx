@@ -1,5 +1,6 @@
 import { projects } from "@/content/projects";
 import { ProjectCard } from "@/components/work/ProjectCard";
+import { ExploreWorksLink } from "@/components/work/ExploreWorksLink";
 
 export function SelectedWork() {
   return (
@@ -17,9 +18,7 @@ export function SelectedWork() {
         ))}
       </div>
       <div className="work-footer reveal">
-        <a className="text-link work-archive-link" href="/works/">
-          Explore all works ({String(projects.length).padStart(2, "0")})
-        </a>
+        <ExploreWorksLink count={projects.length} inline />
         <a className="text-link" href="#contact">
           Have something in mind?
         </a>

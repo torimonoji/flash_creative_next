@@ -5401,20 +5401,21 @@ a.project {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   min-height: 68px;
   max-width: 100%;
-  padding: 20px 34px;
-  border: 1.5px solid var(--ink);
+  padding: 20px 40px;
+  border: 2px solid var(--ink);
   border-radius: 999px;
   background: transparent;
   color: var(--ink);
   font-size: 16px;
-  line-height: 1.25;
+  line-height: 1.4;
   transition:
-    background-color 0.3s ease,
-    border-color 0.3s ease,
-    color 0.3s ease;
+    transform 0.4s cubic-bezier(1, 0, 0, 1),
+    background-color 0.4s ease,
+    border-color 0.4s ease,
+    color 0.4s ease;
 }
 .all-works-button:is(:hover, :focus-visible) {
   background: var(--blue);
@@ -5428,36 +5429,51 @@ body:has(.all-works-button:hover) > .pointer-orbit {
   outline: 2px solid var(--blue);
   outline-offset: 5px;
 }
-.all-works-button svg {
-  width: 22px;
-  height: 22px;
+.all-works-button:active {
+  transform: scale(0.95);
+}
+.all-works-button svg,
+.all-works-inline svg {
+  width: 1em;
+  height: 1em;
   flex-shrink: 0;
-  stroke: currentColor;
-  stroke-width: 1.6;
+  fill: currentColor;
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.all-works-inline {
+  line-height: 1.4;
+}
+.all-works-inline svg {
+  margin-right: 8px;
 }
 .all-works-label {
-  height: 1.25em;
+  display: inline-flex;
+  height: 1.4em;
   overflow: hidden;
 }
-.all-works-reel {
-  display: flex;
-  flex-direction: column;
-}
-.all-works-reel > span {
-  height: 1.25em;
-  line-height: 1.25;
+.all-works-letter {
+  display: inline-block;
+  height: 1.4em;
+  overflow: hidden;
   white-space: nowrap;
 }
-.all-works-button:is(:hover, :focus-visible) .all-works-reel {
-  animation: all-works-roll 0.85s cubic-bezier(0.18, 0.75, 0.22, 1) both;
+.all-works-glyph {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
-@keyframes all-works-roll {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-75%);
-  }
+.all-works-glyph > span {
+  display: block;
+  flex-shrink: 0;
+  height: 1.4em;
+  line-height: 1.4;
+}
+:is(.all-works-button, .all-works-inline):is(:hover, :focus-visible)
+  .all-works-glyph {
+  transform: translateY(-50%);
+}
+:is(.all-works-button, .all-works-inline):is(:hover, :focus-visible) svg {
+  transform: translateX(50%);
 }
 @media (max-width: 640px) {
   .all-works-button {
@@ -5466,11 +5482,16 @@ body:has(.all-works-button:hover) > .pointer-orbit {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .all-works-button {
+  :is(.all-works-button, .all-works-inline),
+  :is(.all-works-button, .all-works-inline) svg,
+  :is(.all-works-button, .all-works-inline) .all-works-glyph {
     transition: none;
   }
-  .all-works-button:is(:hover, :focus-visible) .all-works-reel {
-    animation: none;
+  :is(.all-works-button, .all-works-inline):is(:hover, :focus-visible, :active),
+  :is(.all-works-button, .all-works-inline):is(:hover, :focus-visible) svg,
+  :is(.all-works-button, .all-works-inline):is(:hover, :focus-visible)
+    .all-works-glyph {
+    transform: none;
   }
 }
 .portfolio-reveal {
